@@ -66,10 +66,15 @@ const createGPTChat = () => {
       messages: [...messages, newMessage],
       model: "gpt-3.5-turbo",
     });
-    const result: ChatGptCompletionResult = JSON.parse(
-      completion?.choices[0]?.message?.content || "",
-    );
+    const GPTAnswer = completion?.choices[0]?.message?.content || "";
+    const result: ChatGptCompletionResult = JSON.parse(GPTAnswer);
+
     messages.push(newMessage);
+    messages.push({
+      role: "assistant",
+      content: GPTAnswer,
+    });
+
     if (result.settings.technologies.length > 0) {
       usersSettings[userId] = {
         technologies: result.settings.technologies,
