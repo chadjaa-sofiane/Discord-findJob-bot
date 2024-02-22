@@ -1,9 +1,8 @@
 import readline from "readline";
-import crypeo from "crypto";
 import chalk from "chalk";
 import createGPTChat from "./services/chatGpt";
 
-const chat = createGPTChat();
+const chat = await createGPTChat();
 const userId = crypto.randomUUID();
 const rl = readline.createInterface({
   input: process.stdin,

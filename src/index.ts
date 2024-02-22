@@ -1,18 +1,11 @@
+import "./bot/controllers";
+import config from "./configs";
 import redisClient from "./redis/redisClient";
-import createGPTChat from "./services/chatGpt";
-import completion from "./services/chatGpt";
+import client from "./services/discord";
 
 const main = async () => {
-  const chat = createGPTChat();
-  const message = await chat.getMessage({
-    userId: "1",
-    message:
-      "I want to look for a job for these technologies: HTML, CSS, JS, Node, React",
-  });
-  console.log(message);
   try {
-    const data = await redisClient.keys("*");
-    console.log(data);
+    client.login(config.discordToken);
   } catch (error) {
     console.log(error);
   }
