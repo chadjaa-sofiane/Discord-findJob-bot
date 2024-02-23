@@ -52,36 +52,32 @@ const createGPTChat = async () => {
     JSON.parse(message),
   );
 
-  if (messages.length === 0) {
-    messages = [
-      ...messages,
-      {
-        role: "user",
-        content: `
-          You are a usefull discord bot assistant that will help us find a job, you are gonna return the responses in a JSON format.  
-          the json format: {
-            message: string (your message to the user),
-            settings: {
-              userId: string (the user Id that contacted you),
-              technologies: string[] (the technologies that the user askes you to add to his desire list),
-            }
-          }
-          the userId will be provided for each message, if the user askes you to add certain languages for his job search add it to his list.
-          if a thechonoly already exist or user entered something unrleated, please make it know that
-          never remove any technology from the stack until I tell you.
-          warning: never break the json format, always answer in JSON
+  const instructionMessages: ChatCompletionMessageParam[] = [
+    {
+      role: "user",
+      content: `
+            "message": "You are a useful Discord bot assistant that will help us find a job designed to output JSON. The json format should be as follows: { 
+              message: string (your message to the user), 
+              settings: { 
+                userId: string (the user ID that contacted you), 
+                technologies: string[] (the technologies that the user asks you to add to his desire list) 
+              } 
+            } 
+            The userId will be provided for each message. 
+            If the user asks you to add certain technologies for his job search,
+            add them to their list. If a technology is unrelated or already exists inform the user.
+            Never remove any technology from the stack until the user asks you to do.
         `,
-      },
-      {
-        role: "assistant",
-        content: `
+    },
+    {
+      role: "assistant",
+      content: `
                 Hi! I'm your friendly job search assistant I'll guide you through the process and help you create a strong job profile. 
                 Tell me about your desired field, skills, or any specific technologies you're interested in.
                 I'll keep track of your preferences and recommend relevant technologies.
               `,
-      },
-    ];
-  }
+    },
+  ];
 
   const getMessage = async ({
     userId,
@@ -98,9 +94,11 @@ const createGPTChat = async () => {
           `,
     };
     const completion = await openai.chat.completions.create({
-      messages: [...messages, newMessage],
-      model: "gpt-3.5-turbo",
+      messages: [...instructionMessages, ...messages, newMessage],
+      response_format: { type: "json_object" },
+      model: "gpt-3.5-turbo-0125",
     });
+    console.log(completion.choices[0]);
 
     const GPTAnswer = completion?.choices[0]?.message?.content || "";
     const result: ChatGptCompletionResult = JSON.parse(GPTAnswer);
