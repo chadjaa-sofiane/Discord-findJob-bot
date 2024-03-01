@@ -10,7 +10,7 @@ export const createLoadingMessage = (message: string) => {
   const intervalTimer = setInterval(() => {
     const symbol = symbols[symbolIndex % symbols.length];
 
-    process.stdout.clearLine(1);
+    process.stdout.clearLine(0);
     process.stdout.cursorTo(0);
     process.stdout.write(`${message} ${chalk.yellow(symbol)}`);
 
@@ -23,6 +23,8 @@ export const createLoadingMessage = (message: string) => {
 
     process.stdout.clearLine(0);
     process.stdout.cursorTo(0);
+
+    process.stdout.write("\n");
 
     clearInterval(intervalTimer);
   };
