@@ -4,10 +4,12 @@
   "type": "module",
   "main": "/src/index.ts",
   "scripts": {
+    "start": "bun run src/index.ts",
     "dev": "bun run --watch src/index.ts",
     "chat": "bun run --watch src/cliChat.ts"
   },
   "devDependencies": {
+    "@types/inquirer": "^9.0.7",
     "bun-types": "latest"
   },
   "peerDependencies": {
@@ -16,6 +18,7 @@
   "dependencies": {
     "chalk": "^5.3.0",
     "discord.js": "^14.14.1",
+    "inquirer": "^9.2.15",
     "openai": "^4.28.0",
     "puppeteer": "^22.2.0",
     "redis": "^4.6.13",
