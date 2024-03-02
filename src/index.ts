@@ -2,7 +2,7 @@ import "./bot/controllers";
 import createDataAnalyzer from "./services/dataAnalyzer";
 import chalk from "chalk";
 
-const DATA_ANALYZER_INTERVAL = 1000 * 1; // every two hours
+const DATA_ANALYZER_INTERVAL = 1000 * 60; // every one minute
 
 const main = async () => {
   try {
