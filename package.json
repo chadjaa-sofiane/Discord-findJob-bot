@@ -6,7 +6,8 @@
   "scripts": {
     "start": "bun run src/index.ts",
     "dev": "bun run --watch src/index.ts",
-    "chat": "bun run --watch src/cliChat.ts"
+    "chat": "bun run --watch src/cliChat.ts",
+    "tp": "bun run scripts/testSources.ts"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.7",
