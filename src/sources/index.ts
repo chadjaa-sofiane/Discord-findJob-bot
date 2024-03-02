@@ -1,14 +1,17 @@
 import { type Browser } from "puppeteer";
 import optionCarrierProvider from "./optionCarrier";
 
-export type ApplicationsProvider = (browser: Browser) => Promise<
-  {
-    id: string;
-    link: string;
-    date: Date;
-    description: string;
-  }[]
->;
+export type Application = {
+  id: string;
+  title: string | null;
+  link: string;
+  location: string | null;
+  companyName: string | null;
+  date: string | null;
+  details: string | null;
+};
+
+export type ApplicationsProvider = (browser: Browser) => Promise<Application[]>;
 
 const sources: ApplicationsProvider[] = [optionCarrierProvider];
 
