@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import redisClient from "../redis/redisClient";
+import { MESSAGES, getUserSettingsKey } from "../configs/constant";
 
 type UsersSettings = Record<
   string,
@@ -22,9 +23,10 @@ const openai = new OpenAI({
 });
 
 const getAllUserSettings = async (): Promise<UsersSettings> => {
-  const keys = await redisClient.keys("usersSettings:*");
+  const allUserSettingsKeys = getUserSettingsKey("*");
+  const keys = await redisClient.keys(allUserSettingsKeys);
 
-  const settingsPromises = await keys.reduce(
+  const settingsPromises = keys.reduce(
     async (acc, key) => {
       const userId = key.split(":")[1];
       const technologies: string[] = JSON.parse(
@@ -39,15 +41,13 @@ const getAllUserSettings = async (): Promise<UsersSettings> => {
     },
     Promise.resolve({} as UsersSettings),
   );
-  console.log(settingsPromises);
-
   return settingsPromises;
 };
 
 const createGPTChat = async () => {
   const usersSettings = await getAllUserSettings();
 
-  const redisMessages = await redisClient.lRange("messages", 0, -1);
+  const redisMessages = await redisClient.lRange(MESSAGES, 0, -1);
   let messages: ChatCompletionMessageParam[] = redisMessages.map((message) =>
     JSON.parse(message),
   );
@@ -116,18 +116,19 @@ const createGPTChat = async () => {
         technologies: result.settings.technologies,
       };
       // Store the users settings.
+      const userSettingsKey = getUserSettingsKey(userId);
       redisClient.hSet(
-        `usersSettings:${userId}`,
+        userSettingsKey,
         "technologies",
         JSON.stringify(result.settings.technologies),
       );
     }
 
     // Store your message
-    redisClient.rPush(`messages`, JSON.stringify(newMessage));
+    redisClient.rPush(MESSAGES, JSON.stringify(newMessage));
 
     // Store Gpt response
-    redisClient.rPush(`messages`, JSON.stringify(GPTmessage));
+    redisClient.rPush(MESSAGES, JSON.stringify(GPTmessage));
 
     return result.message;
   };
