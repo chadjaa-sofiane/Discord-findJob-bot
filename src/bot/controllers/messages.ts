@@ -1,7 +1,7 @@
+import { Message } from "discord.js";
 import createGPTChat from "../../services/chatGpt";
-import client from "../../services/discord";
 
-client.on("messageCreate", async (message) => {
+export const createAssistantMessage = async (message: Message) => {
   if (!message.author.bot) {
     const chat = await createGPTChat();
 
@@ -18,4 +18,4 @@ client.on("messageCreate", async (message) => {
 
     message.channel.send(GPTmessage);
   }
-});
+};
