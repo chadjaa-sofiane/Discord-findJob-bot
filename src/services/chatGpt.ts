@@ -44,10 +44,28 @@ const getAllUserSettings = async (): Promise<UsersSettings> => {
   return settingsPromises;
 };
 
+const sendChatGptRequest = async (messages: ChatCompletionMessageParam[]) => {
+  const completion = await openai.chat.completions.create({
+    messages,
+    response_format: { type: "json_object" },
+    model: "gpt-3.5-turbo-0125",
+  });
+
+  return completion.choices[0]?.message?.content || "";
+};
+
+const parseChatGptResponse = (response: string): ChatGptCompletionResult => {
+  const result: ChatGptCompletionResult = JSON.parse(response);
+  return result;
+};
+
+// TODO: rename this function to createChatGptAssistant.
+// TODO: separate responsibilities, ex: managing redis operations, proccessing chat GPT respones.
 const createGPTChat = async () => {
   const usersSettings = await getAllUserSettings();
 
   const redisMessages = await redisClient.lRange(MESSAGES, 0, -1);
+
   let messages: ChatCompletionMessageParam[] = redisMessages.map((message) =>
     JSON.parse(message),
   );
@@ -56,14 +74,14 @@ const createGPTChat = async () => {
     {
       role: "user",
       content: `
-            "message": "You are a useful Discord bot assistant that will help us find a job designed to output JSON. The json format should be as follows: { 
+            "message": "You are a useful Discord bot assistant that will help us find a job designed to output json. The json format should be as follows: { 
               message: string (your message to the user), 
               settings: { 
                 userId: string (the user ID that contacted you), 
                 technologies: string[] (the technologies that the user asks you to add to his desire list) 
               } 
             } 
-            The userId will be provided for each message. 
+            The userId will be provided for each message.
             If the user asks you to add certain technologies for his job search,
             add them to their list. If a technology is unrelated or already exists inform the user.
             Never remove any technology from the stack until the user asks you to do.
@@ -93,27 +111,27 @@ const createGPTChat = async () => {
             message: ${message}
           `,
     };
-    const completion = await openai.chat.completions.create({
-      messages: [...instructionMessages, ...messages, newMessage],
-      response_format: { type: "json_object" },
-      model: "gpt-3.5-turbo-0125",
-    });
-    console.log(completion.choices[0]);
 
-    const GPTAnswer = completion?.choices[0]?.message?.content || "";
-    const result: ChatGptCompletionResult = JSON.parse(GPTAnswer);
+    const assistantResponse = await sendChatGptRequest([
+      ...instructionMessages,
+      ...messages,
+    ]);
 
-    const GPTmessage: ChatCompletionMessageParam = {
+    const result: ChatGptCompletionResult = JSON.parse(assistantResponse);
+    const { settings, message: responseMessage } =
+      parseChatGptResponse(assistantResponse);
+
+    const assistantMessage: ChatCompletionMessageParam = {
       role: "assistant",
-      content: GPTAnswer,
+      content: assistantResponse,
     };
 
     messages.push(newMessage);
-    messages.push(GPTmessage);
+    messages.push(assistantMessage);
 
     if (result?.settings?.technologies?.length > 0) {
       usersSettings[userId] = {
-        technologies: result.settings.technologies,
+        technologies: settings.technologies,
       };
       // Store the users settings.
       const userSettingsKey = getUserSettingsKey(userId);
@@ -128,9 +146,9 @@ const createGPTChat = async () => {
     redisClient.rPush(MESSAGES, JSON.stringify(newMessage));
 
     // Store Gpt response
-    redisClient.rPush(MESSAGES, JSON.stringify(GPTmessage));
+    redisClient.rPush(MESSAGES, JSON.stringify(assistantMessage));
 
-    return result.message;
+    return responseMessage;
   };
   return {
     getMessage,
