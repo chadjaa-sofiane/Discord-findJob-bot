@@ -11,7 +11,10 @@ export type Application = {
   details: string | null;
 };
 
-export type ApplicationsProvider = (browser: Browser) => Promise<Application[]>;
+export type ApplicationsProvider = (browser: Browser) => Promise<{
+  name: string;
+  apps: Application[];
+}>;
 
 const sources: ApplicationsProvider[] = [optionCarrierProvider];
 

@@ -90,7 +90,10 @@ const optionCarrierProvider: ApplicationsProvider = async (browser) => {
   // store the result in a json file.
   // await Bun.write("optioncarrier.json", JSON.stringify(applications, null, 2));
 
-  return applications;
+  return {
+    name: "optioncarrier",
+    apps: applications,
+  };
 };
 
 export default optionCarrierProvider;
