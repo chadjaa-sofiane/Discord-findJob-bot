@@ -1,8 +1,8 @@
 import readline from "readline";
 import chalk from "chalk";
-import createGPTChat from "./services/chatGpt";
+import createAssistant from "./services/chatGpt";
 
-const chat = await createGPTChat();
+const assistant = await createAssistant();
 const userId = crypto.randomUUID();
 const rl = readline.createInterface({
   input: process.stdin,
@@ -15,7 +15,7 @@ console.log(
 `),
 );
 
-const startMessage = await chat.getMessage({
+const startMessage = await assistant.getMessage({
   userId,
   message: "say hello and introduce your self",
 });
@@ -26,7 +26,7 @@ const getUserInput = () => {
   console.log("\nyou: ");
 
   rl.question("", async (input) => {
-    const response = await chat.getMessage({ userId, message: input });
+    const response = await assistant.getMessage({ userId, message: input });
     console.log(chalk.cyan(response));
     getUserInput();
   });

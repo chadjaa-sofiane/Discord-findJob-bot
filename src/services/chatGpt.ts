@@ -59,9 +59,8 @@ const parseChatGptResponse = (response: string): ChatGptCompletionResult => {
   return result;
 };
 
-// TODO: rename this function to createChatGptAssistant.
 // TODO: separate responsibilities, ex: managing redis operations, proccessing chat GPT respones.
-const createGPTChat = async () => {
+const createAssistant = async () => {
   const usersSettings = await getAllUserSettings();
 
   const redisMessages = await redisClient.lRange(MESSAGES, 0, -1);
@@ -115,6 +114,7 @@ const createGPTChat = async () => {
     const assistantResponse = await sendChatGptRequest([
       ...instructionMessages,
       ...messages,
+      newMessage,
     ]);
 
     const result: ChatGptCompletionResult = JSON.parse(assistantResponse);
@@ -155,4 +155,4 @@ const createGPTChat = async () => {
   };
 };
 
-export default createGPTChat;
+export default createAssistant;

@@ -1,13 +1,13 @@
 import { Message } from "discord.js";
-import createGPTChat from "../../services/chatGpt";
+import createAssistant from "../../services/chatGpt";
+
+const assistant = await createAssistant();
 
 export const createAssistantMessage = async (message: Message) => {
   if (!message.author.bot) {
-    const chat = await createGPTChat();
-
     const userId = message.author.id;
 
-    const GPTmessage = await chat.getMessage({
+    const GPTmessage = await assistant.getMessage({
       userId,
       message: `
         createdAt: ${message.createdAt.toISOString()}
