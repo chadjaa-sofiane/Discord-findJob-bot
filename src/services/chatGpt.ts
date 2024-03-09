@@ -54,12 +54,13 @@ const sendChatGptRequest = async (messages: ChatCompletionMessageParam[]) => {
   return completion.choices[0]?.message?.content || "";
 };
 
-const parseChatGptResponse = (response: string): ChatGptCompletionResult => {
+const parseChatGptResponse = (response: string) => {
   const result: ChatGptCompletionResult = JSON.parse(response);
   return result;
 };
 
 // TODO: separate responsibilities, ex: managing redis operations, proccessing chat GPT respones.
+// TODO: remove the internal variables.
 const createAssistant = async () => {
   const usersSettings = await getAllUserSettings();
 
@@ -71,19 +72,33 @@ const createAssistant = async () => {
 
   const instructionMessages: ChatCompletionMessageParam[] = [
     {
-      role: "user",
+      role: "system",
       content: `
-            "message": "You are a useful Discord bot assistant that will help us find a job designed to output json. The json format should be as follows: { 
-              message: string (your message to the user), 
-              settings: { 
-                userId: string (the user ID that contacted you), 
-                technologies: string[] (the technologies that the user asks you to add to his desire list) 
-              } 
-            } 
-            The userId will be provided for each message.
-            If the user asks you to add certain technologies for his job search,
-            add them to their list. If a technology is unrelated or already exists inform the user.
-            Never remove any technology from the stack until the user asks you to do.
+          You are a useful Discord bot assistant that will help users find a job by managing their desired technologies list and processing job applications. Your responses should be in JSON format.
+
+          When a user interacts with you, respond with the following JSON format:
+          {
+            "message": string (your message to the user),
+            "settings": {
+              "userId": string (the user ID that contacted you),
+              "technologies": string[] (the technologies that the user has added to their desired list)
+            }
+          }
+
+          When the system asks you to process an application, respond with the following JSON format:
+          {
+            "targetUser": {
+              "userId": string
+            },
+            "message": string (a message for the target user regarding the job application)
+          }
+          if no user fit the position just return nothing.
+
+          The userId will be provided for each message.
+
+          If a user asks you to add certain technologies to their desired list, add them to the "technologies" array in the "settings" object. If a technology is unrelated or already exists in the list, inform the user in the "message" field.
+
+          Never remove any technology from the list unless the user explicitly asks you to do so.
         `,
     },
     {
@@ -107,6 +122,7 @@ const createAssistant = async () => {
       role: "user",
       content: `
             userid: ${userId}
+            userTechnologies: ${usersSettings[userId].technologies.join(", ")}
             message: ${message}
           `,
     };
@@ -117,7 +133,6 @@ const createAssistant = async () => {
       newMessage,
     ]);
 
-    const result: ChatGptCompletionResult = JSON.parse(assistantResponse);
     const { settings, message: responseMessage } =
       parseChatGptResponse(assistantResponse);
 
@@ -128,8 +143,13 @@ const createAssistant = async () => {
 
     messages.push(newMessage);
     messages.push(assistantMessage);
+    // Store your message
+    redisClient.rPush(MESSAGES, JSON.stringify(newMessage));
 
-    if (result?.settings?.technologies?.length > 0) {
+    // Store Gpt response
+    redisClient.rPush(MESSAGES, JSON.stringify(assistantMessage));
+
+    if (settings?.technologies?.length > 0) {
       usersSettings[userId] = {
         technologies: settings.technologies,
       };
@@ -138,10 +158,33 @@ const createAssistant = async () => {
       redisClient.hSet(
         userSettingsKey,
         "technologies",
-        JSON.stringify(result.settings.technologies),
+        JSON.stringify(settings.technologies),
       );
     }
 
+    return responseMessage;
+  };
+
+  const executeSystemInstructions = async (input: string) => {
+    const newMessage: ChatCompletionMessageParam = {
+      role: "system",
+      content: input,
+    };
+    const assistantResponse = await sendChatGptRequest([
+      ...instructionMessages,
+      ...messages,
+      newMessage,
+    ]);
+    const { message: responseMessage } =
+      parseChatGptResponse(assistantResponse);
+
+    const assistantMessage: ChatCompletionMessageParam = {
+      role: "assistant",
+      content: assistantResponse,
+    };
+
+    messages.push(newMessage);
+    messages.push(assistantMessage);
     // Store your message
     redisClient.rPush(MESSAGES, JSON.stringify(newMessage));
 
@@ -150,8 +193,10 @@ const createAssistant = async () => {
 
     return responseMessage;
   };
+
   return {
     getMessage,
+    executeSystemInstructions,
   };
 };
 
