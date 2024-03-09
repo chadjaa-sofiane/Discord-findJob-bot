@@ -9,6 +9,7 @@ export type Application = {
   companyName: string | null;
   date: string | null;
   details: string | null;
+  execlude: boolean;
 };
 
 export type ApplicationsProvider = (browser: Browser) => Promise<{

@@ -62,6 +62,8 @@ const optionCarrierProvider: ApplicationsProvider = async (browser) => {
 
         page.close();
 
+        // execlude all the applications that was published more than one month ago.
+        const execlude = date?.includes("mois") || false;
         // Since node functions can't be used inside eval callbacks, sanitizeText must be applied here.
         return {
           id,
@@ -71,6 +73,7 @@ const optionCarrierProvider: ApplicationsProvider = async (browser) => {
           companyName: sanitizeText(companyName),
           date,
           details,
+          execlude,
         };
       }),
     );
