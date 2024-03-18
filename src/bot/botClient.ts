@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits } from "discord.js";
+import { Client, GatewayIntentBits, Events } from "discord.js";
 import { createAssistantMessage } from "./controllers/messages";
 
 const client = new Client({
@@ -11,15 +11,16 @@ const client = new Client({
   ],
 });
 
-client.on("ready", () => {
+client.on(Events.ClientReady, () => {
   console.log(`logged in as ${client.user?.tag}`);
 });
 
-client.on("error", (error) => {
+client.on(Events.Error, (error) => {
   console.log(`an error has occured ${error}`);
+  // const channel = client.channels.cache.get("1192796488888229938");
 });
 
 // Discord bot messages
-client.on("messageCreate", createAssistantMessage);
+client.on(Events.MessageCreate, createAssistantMessage);
 
 export default client;
