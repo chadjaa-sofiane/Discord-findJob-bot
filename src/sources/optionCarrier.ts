@@ -13,7 +13,7 @@ const optionCarrierProvider: ApplicationsProvider = async (browser) => {
   let applications: Application[] = [];
 
   let nextButton: ElementHandle<HTMLAnchorElement> | null;
-  await page.screenshot({ path: "test.png" });
+  // await page.screenshot({ path: "test.png" });
   do {
     nextButton = await page.$("#search-content > p > a");
 
