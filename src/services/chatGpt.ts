@@ -129,7 +129,7 @@ const createAssistant = async () => {
 
     const assistantResponse = await sendChatGptRequest([
       ...instructionMessages,
-      ...messages,
+      ...messages.slice(-10),
       newMessage,
     ]);
 
@@ -172,7 +172,7 @@ const createAssistant = async () => {
     };
     const assistantResponse = await sendChatGptRequest([
       ...instructionMessages,
-      ...messages,
+      ...messages.slice(-10),
       newMessage,
     ]);
     const { message: responseMessage } =
