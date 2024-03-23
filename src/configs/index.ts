@@ -4,6 +4,8 @@ type EnvConfig = {};
 
 const commonConfigs = {
   discordToken: Bun.env.DISCORD_TOKEN,
+  discordGulId: Bun.env.DISCORD_GUILD,
+  discordClientId: Bun.env.DISCORD_CLIENT_ID,
 };
 
 const configsValidation = z.object({
