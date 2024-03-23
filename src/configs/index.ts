@@ -10,7 +10,11 @@ const commonConfigs = {
 
 const configsValidation = z.object({
   discordToken: z.string(),
+  discordGulId: z.string(),
+  discordClientId: z.string(),
 });
+
+type Configs = z.infer<typeof configsValidation>;
 
 const developmentConfigs = {};
 const productionConfigs = {};
@@ -25,7 +29,7 @@ const envConfigs: Record<typeof APP_ENV, EnvConfig> = {
 };
 
 const config = {
-  ...commonConfigs,
+  ...(commonConfigs as Configs),
   envConfigs: envConfigs[APP_ENV],
 };
 
