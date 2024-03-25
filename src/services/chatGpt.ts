@@ -22,7 +22,7 @@ const openai = new OpenAI({
   apiKey: Bun.env.OPEN_AI_SCRET_KEY,
 });
 
-const getAllUserSettings = async (): Promise<UsersSettings> => {
+export const getAllUserSettings = async (): Promise<UsersSettings> => {
   const allUserSettingsKeys = getUserSettingsKey("*");
   const keys = await redisClient.keys(allUserSettingsKeys);
 
