@@ -34,16 +34,20 @@ for (const folder of commandsFolder) {
 // Construct and prepare an instance of the REST module
 const rest = new REST().setToken(configs.discordToken);
 
-try {
-  console.log("Started refreshing application (/) commands.");
+const slashRegister = async () => {
+  try {
+    console.log("Started refreshing application (/) commands.");
 
-  const data = await rest.put(
-    Routes.applicationGuildCommands(
-      configs.discordClientId,
-      configs.discordGulId,
-    ),
-    { body: commands },
-  );
-} catch (error) {
-  console.log(error);
-}
+    await rest.put(
+      Routes.applicationGuildCommands(
+        configs.discordClientId,
+        configs.discordGulId,
+      ),
+      { body: commands },
+    );
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+slashRegister();
