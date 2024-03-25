@@ -7,7 +7,7 @@ import configs from "../configs";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const commands = [];
+const commands: unknown[] = [];
 const foldersPath = path.join(__dirname, "commands");
 const commandsFolder = await readdir(foldersPath);
 
@@ -35,6 +35,7 @@ for (const folder of commandsFolder) {
 const rest = new REST().setToken(configs.discordToken);
 
 const slashRegister = async () => {
+  console.log(commands);
   try {
     console.log("Started refreshing application (/) commands.");
 
