@@ -2,13 +2,7 @@ import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import redisClient from "../redis/redisClient";
 import { MESSAGES, getUserSettingsKey } from "../configs/constant";
-
-type UsersSettings = Record<
-  string,
-  {
-    technologies: string[];
-  }
->;
+import { getAllUserSettings } from "../redis/redisUtils";
 
 type ChatGptCompletionResult = {
   message: string;
@@ -21,28 +15,6 @@ type ChatGptCompletionResult = {
 const openai = new OpenAI({
   apiKey: Bun.env.OPEN_AI_SCRET_KEY,
 });
-
-export const getAllUserSettings = async (): Promise<UsersSettings> => {
-  const allUserSettingsKeys = getUserSettingsKey("*");
-  const keys = await redisClient.keys(allUserSettingsKeys);
-
-  const settingsPromises = keys.reduce(
-    async (acc, key) => {
-      const userId = key.split(":")[1];
-      const technologies: string[] = JSON.parse(
-        (await redisClient.hGet(key, "technologies")) || "",
-      );
-      return {
-        ...(await acc),
-        [userId]: {
-          technologies,
-        },
-      };
-    },
-    Promise.resolve({} as UsersSettings),
-  );
-  return settingsPromises;
-};
 
 const sendChatGptRequest = async (messages: ChatCompletionMessageParam[]) => {
   const completion = await openai.chat.completions.create({

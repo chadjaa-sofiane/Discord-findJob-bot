@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, CommandInteraction } from "discord.js";
 import { Command } from "./ping";
-import { getAllUserSettings } from "../../../services/chatGpt";
+import { getAllUserSettings } from "../../../redis/redisUtils";
 
 const techsCommand: Command = {
   data: new SlashCommandBuilder()
