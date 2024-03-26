@@ -1,5 +1,5 @@
 import { Message } from "discord.js";
-import createAssistant from "../../services/chatGpt";
+import createAssistant from "@/services/chatGpt";
 
 const assistant = await createAssistant();
 

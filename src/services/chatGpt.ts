@@ -1,8 +1,8 @@
 import OpenAI from "openai";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
-import redisClient from "../redis/redisClient";
-import { MESSAGES, getUserSettingsKey } from "../configs/constant";
-import { getAllUserSettings } from "../redis/redisUtils";
+import redisClient from "@/redis/redisClient";
+import { MESSAGES, getUserSettingsKey } from "@/configs/constant";
+import { getAllUserSettings } from "@/redis/redisUtils";
 
 type ChatGptCompletionResult = {
   message: string;

@@ -1,5 +1,5 @@
 import redisClient from "./redisClient";
-import { MESSAGES, getUserSettingsKey } from "../configs/constant";
+import { MESSAGES, getUserSettingsKey } from "@/configs/constant";
 
 type UsersSettings = Record<
   string,

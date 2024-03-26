@@ -1,6 +1,6 @@
 import { ElementHandle } from "puppeteer";
 import { Application, ApplicationsProvider } from ".";
-import { sanitizeText } from "../lib/utils";
+import { sanitizeText } from "@/lib/utils";
 
 const optionCarrierProvider: ApplicationsProvider = async (browser) => {
   const page = await browser.newPage();

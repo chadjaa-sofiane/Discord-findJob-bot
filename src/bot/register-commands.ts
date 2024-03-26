@@ -2,7 +2,7 @@ import { REST, Routes } from "discord.js";
 import path from "node:path";
 import { fileURLToPath } from "url";
 import { readdir } from "node:fs/promises";
-import configs from "../configs";
+import configs from "@/configs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

@@ -1,10 +1,10 @@
 import puppeteer from "puppeteer";
-import sources, { Application } from "../sources";
-import redisClient from "../redis/redisClient";
-import { JOB_APPLICATIONS_SET } from "../configs/constant";
+import sources, { Application } from "@/sources";
+import redisClient from "@/redis/redisClient";
+import { JOB_APPLICATIONS_SET } from "@/configs/constant";
 import chalk from "chalk";
 import createAssistant from "./chatGpt";
-import { wait } from "../lib/utils";
+import { wait } from "@/lib/utils";
 
 const hasBeenProcessed = async (jobApplicationId: string) => {
   const isMember = await redisClient.sIsMember(
